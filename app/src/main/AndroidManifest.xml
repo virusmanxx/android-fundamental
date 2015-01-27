@@ -16,6 +16,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CheckGradeActivity"
+            android:label="@string/title_activity_check_grade" >
+        </activity>
     </application>
 
 </manifest>
