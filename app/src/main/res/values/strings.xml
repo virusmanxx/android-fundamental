@@ -4,5 +4,6 @@
     <string name="app_name">Android Fundamental</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="facebook_app_id">542028572606208</string>
 
 </resources>
