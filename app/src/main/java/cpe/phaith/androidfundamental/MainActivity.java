@@ -32,6 +32,11 @@ public class MainActivity extends ActionBarActivity {
             onSessionStateChange(session, state, exception);
         }
     };
+    private PendingAction pendingAction;
+
+    enum PendingAction {
+        NONE, LOGGED_IN, LOGGED_OUT
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         context = this;
+        pendingAction = PendingAction.NONE;
 
         loginButton = (Button) findViewById(R.id.login_button);
         changeToLoginButton(loginButton);
@@ -46,21 +52,23 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    private void changeToLogoutButton(Button button){
+    private void changeToLogoutButton(Button button) {
         button.setText("Logout");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pendingAction = PendingAction.LOGGED_OUT;
                 callFacebookLogout();
             }
         });
     }
 
-    private void changeToLoginButton(Button button){
+    private void changeToLoginButton(Button button) {
         button.setText("Facebook Login");
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pendingAction = PendingAction.LOGGED_IN;
                 Session session = Session.getActiveSession();
                 if (session != null && !session.isOpened() && !session.isClosed()) {
                     session.openForRead(new Session.OpenRequest(MainActivity.this)
@@ -105,25 +113,31 @@ public class MainActivity extends ActionBarActivity {
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         if (state.isOpened()) {
-            Log.i(TAG, "Logged in...");
-            changeToLogoutButton(loginButton);
-            Request.newMeRequest(session, new Request.GraphUserCallback() {
+            if (pendingAction == PendingAction.LOGGED_IN) {
+                pendingAction = PendingAction.NONE;
+                Log.i(TAG, "Logged in...");
+                changeToLogoutButton(loginButton);
+                Request.newMeRequest(session, new Request.GraphUserCallback() {
 
-                // callback after Graph API response with user object
-                @Override
-                public void onCompleted(GraphUser user, Response response) {
-                    Toast.makeText(context, user.getName() + " is Logged in", Toast.LENGTH_SHORT).show();
-                }
-            }).executeAsync();
+                    // callback after Graph API response with user object
+                    @Override
+                    public void onCompleted(GraphUser user, Response response) {
+                        Toast.makeText(context, user.getName() + " is Logged in", Toast.LENGTH_SHORT).show();
+                    }
+                }).executeAsync();
+            }
         } else if (state.isClosed()) {
-            Log.i(TAG, "Logged out...");
-            changeToLoginButton(loginButton);
+            if (pendingAction == PendingAction.LOGGED_OUT) {
+                pendingAction = PendingAction.NONE;
+                changeToLoginButton(loginButton);
+            }
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
+        if (Session.getActiveSession() != null)
+            Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
     }
 }

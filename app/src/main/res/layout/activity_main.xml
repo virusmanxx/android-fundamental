@@ -14,4 +14,12 @@
         android:layout_centerHorizontal="true"
         android:text="FB Login" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Post to facebook"
+        android:id="@+id/btnPost"
+        android:layout_below="@+id/login_button"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
