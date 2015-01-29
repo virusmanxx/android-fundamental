@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 import cpe.phaith.androidfundamental.R;
@@ -59,6 +61,7 @@ public class PhoneListAdapter extends BaseAdapter {
         }
         PhoneItem phoneItem = getItem(position);
         phoneName.setText(phoneItem.getName());
+        Picasso.with(context).load(phoneItem.getImageUrl()).into(phoneImage);
         return convertView;
     }
 

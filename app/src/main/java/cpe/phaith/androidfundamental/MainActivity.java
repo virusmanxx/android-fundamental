@@ -43,10 +43,13 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        phoneList.add(new PhoneItem("Galaxy Nexus", null));
-        phoneList.add(new PhoneItem("Nexus 4", null));
-        phoneList.add(new PhoneItem("Nexus 5", null));
-        phoneList.add(new PhoneItem("Iphone 5", null));
+        phoneList.add(new PhoneItem("Galaxy Nexus", "http://images.all-free-download.com/images/graphiclarge/mobile_icon_55606.jpg"));
+        phoneList.add(new PhoneItem("Nexus 4", "http://images.all-free-download.com/images/graphiclarge/mobile_icon_55606.jpg"));
+        phoneList.add(new PhoneItem("Nexus 5", "http://images.all-free-download.com/images/graphiclarge/mobile_icon_55606.jpg"));
+        phoneList.add(new PhoneItem("Iphone 5", "http://simpleicon.com/wp-content/uploads/iphone.png"));
+        phoneList.add(new PhoneItem("Zen Phone", "http://images.all-free-download.com/images/graphiclarge/mobile_icon_55606.jpg"));
+        phoneList.add(new PhoneItem("Nokia 3310", "http://images.all-free-download.com/images/graphiclarge/mobile_icon_55606.jpg"));
+        phoneList.add(new PhoneItem("Iphone 4s", "http://simpleicon.com/wp-content/uploads/iphone.png"));
 
 
     }
