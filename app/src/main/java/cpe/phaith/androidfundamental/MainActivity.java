@@ -11,14 +11,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.facebook.AppEventsLogger;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
-import com.facebook.widget.LoginButton;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -26,16 +26,19 @@ public class MainActivity extends ActionBarActivity {
     private Context context;
     private static final String TAG = MainActivity.class.getName();
     private Button loginButton;
+    private Button btnPost;
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
             onSessionStateChange(session, state, exception);
         }
     };
+    private static final String PUBLISH_PERMISSION = "publish_actions";
+    private static final List<String> PERMISSIONS = Arrays.asList(PUBLISH_PERMISSION);
     private PendingAction pendingAction;
 
     enum PendingAction {
-        NONE, LOGGED_IN, LOGGED_OUT
+        NONE, LOGGED_IN, LOGGED_OUT, PUBLISH
     }
 
     @Override
@@ -47,14 +50,41 @@ public class MainActivity extends ActionBarActivity {
         pendingAction = PendingAction.NONE;
 
         loginButton = (Button) findViewById(R.id.login_button);
-        changeToLoginButton(loginButton);
+        btnPost = (Button) findViewById(R.id.btnPost);
+        btnPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Session session = Session.getActiveSession();
+                if(session != null && session.isOpened()){
+                    if(!session.isPermissionGranted(PUBLISH_PERMISSION)) {
+                        pendingAction = PendingAction.PUBLISH;
+                        session.requestNewPublishPermissions(new Session.NewPermissionsRequest(MainActivity.this, PERMISSIONS));
+                    }else{
+                        postToWall(session);
+                    }
+
+                }
+            }
+        });
+        updateLogInUI();
 
 
     }
 
-    private void changeToLogoutButton(Button button) {
-        button.setText("Logout");
-        button.setOnClickListener(new View.OnClickListener() {
+    private void postToWall(Session session){
+        Request.newStatusUpdateRequest(session, "Hello World from tutorial app.", new Request.Callback() {
+            @Override
+            public void onCompleted(Response response) {
+                Log.d(TAG, response.toString());
+                Toast.makeText(context, "Message is published to wall", Toast.LENGTH_SHORT).show();
+            }
+        }).executeAsync();
+    }
+
+    private void updateLogOutUI() {
+        btnPost.setEnabled(true);
+        loginButton.setText("Logout");
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pendingAction = PendingAction.LOGGED_OUT;
@@ -63,9 +93,10 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    private void changeToLoginButton(Button button) {
-        button.setText("Facebook Login");
-        button.setOnClickListener(new View.OnClickListener() {
+    private void updateLogInUI() {
+        btnPost.setEnabled(false);
+        loginButton.setText("Facebook Login");
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pendingAction = PendingAction.LOGGED_IN;
@@ -74,7 +105,7 @@ public class MainActivity extends ActionBarActivity {
                     session.openForRead(new Session.OpenRequest(MainActivity.this)
                             .setCallback(callback));
                 } else {
-                    Session.openActiveSession(MainActivity.this, true, callback);
+                    Session.openActiveSession(MainActivity.this, true,  callback);
                 }
             }
         });
@@ -116,7 +147,7 @@ public class MainActivity extends ActionBarActivity {
             if (pendingAction == PendingAction.LOGGED_IN) {
                 pendingAction = PendingAction.NONE;
                 Log.i(TAG, "Logged in...");
-                changeToLogoutButton(loginButton);
+                updateLogOutUI();
                 Request.newMeRequest(session, new Request.GraphUserCallback() {
 
                     // callback after Graph API response with user object
@@ -125,11 +156,14 @@ public class MainActivity extends ActionBarActivity {
                         Toast.makeText(context, user.getName() + " is Logged in", Toast.LENGTH_SHORT).show();
                     }
                 }).executeAsync();
+            }else if (pendingAction == PendingAction.PUBLISH){
+                pendingAction = PendingAction.NONE;
+                postToWall(session);
             }
         } else if (state.isClosed()) {
             if (pendingAction == PendingAction.LOGGED_OUT) {
                 pendingAction = PendingAction.NONE;
-                changeToLoginButton(loginButton);
+                updateLogInUI();
             }
         }
     }
