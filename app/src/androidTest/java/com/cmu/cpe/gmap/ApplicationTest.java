@@ -1,4 +1,4 @@
-package cpe.phaith.androidfundamental;
+package com.cmu.cpe.gmap;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
