@@ -3,12 +3,14 @@ package cpe.phaith.androidfundamental;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
@@ -30,6 +32,7 @@ public class MainActivity extends ActionBarActivity {
         txtChat = (TextView) findViewById(R.id.txtChat);
         btnSend = (Button) findViewById(R.id.btnSend);
         chatInput = (EditText) findViewById(R.id.chatInput);
+
 
         final Pubnub pubnub = new Pubnub("demo", "demo");
         try {
@@ -91,6 +94,19 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 pubnub.publish("hello_channel", chatInput.getText().toString(), callback);
+            }
+        });
+        chatInput.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+//                    Toast.makeText(MainActivity.this, chatInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                    pubnub.publish("hello_channel", chatInput.getText().toString(), callback);
+                    return true;
+                }
+                return false;
             }
         });
 
