@@ -45,6 +45,7 @@ public class MainActivity extends ActionBarActivity {
                         @Override
                         public void run() {
                             txtChat.append(message.toString() + NEW_LINE);
+
                         }
                     });
                 }
