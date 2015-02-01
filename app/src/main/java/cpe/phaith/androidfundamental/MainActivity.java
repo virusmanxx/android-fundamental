@@ -42,6 +42,7 @@ public class MainActivity extends ActionBarActivity {
                     Intent intent = new Intent(context, CheckGradeActivity.class);
                     intent.putExtra("score", Integer.parseInt(score.getText().toString()));
                     startActivityForResult(intent, CHECK_GRADE_REQUEST);
+                    
                 }
             }
         });
